@@ -16,9 +16,7 @@ let bboxCrs;
 let _baseLayer = {};
 
 function initMap(crsAlias) {
-  let options = {
-    gestureHandling: true
-  };
+  let options = {};
   // just to init the map proper
   if (crsAlias=='RD') {
     // a let set in proj4util.js
@@ -50,7 +48,9 @@ function initMap(crsAlias) {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       });
   }
-
+  // add gesture handling
+  options.gestureHandling = true;
+  
   map = new L.map('map', options);
   _baseLayer.addTo(map);
   map.fitBounds(map.getBounds());
