@@ -15,7 +15,7 @@ This client is work in progress and meant for just a basic demo / test to access
 * OpenAPI description of the service
 
 ## Live version
-The live version from master is available at  [https://opengeogroep.github.io/ogc-api-features-testclient/src/](https://opengeogroep.github.io/ogc-api-features-testclient/src/)
+The live version from master is available at  [./src/](./src/)
 
 ### Limitations
 The live version on github.io has limitations:
