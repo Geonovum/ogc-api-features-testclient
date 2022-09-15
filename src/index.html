@@ -5,16 +5,29 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
    crossorigin=""/>
+   <link rel="stylesheet" href="//unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
    <link rel="stylesheet" href="css/testclient.css" />
+   
   <title>OGC API Features and API Records test client</title>
 </head>
 
 <body>
-  <h1>OGC API Features and API Records test client</h1>
-  <div>
-    <p>This client is very basic. The goal is to demonstrate the usage of OGC API Features and API Records implementations and to test different implementations of these API specification. 
+  <div id="menu">
+    <ul>
+      <li><a href="#topheader">Start</a></li>
+      <li><a href="#apiinfo">API info</a></li>
+      <li><a href="#results">Map & results</a></li>
+      <li><a href="#logHeader">Request log</a></li>
+    </ul>
+  </div>
+  <h1 id="topheader">OGC API Features and API Records test client</h1>  
+  <div>    
+    <p> 
+      The goal of this client is to demonstrate the usage of OGC API Features and API Records implementations and to test different implementations of these API specifications. 
       Enter an OpenAPI document URL to see what data is offered by the API or choose one from the list. 
-      The logging screen below the map shows which HTTP requests are sent.</p>
+      The logging screen below the map shows which HTTP requests are sent.<br/>
+      <span class="warning">This client is very basic, meant for testing and demo only.</span>
+    </p>    
     <p><label for="apiurl">API doc URL: <input type="text" id="apiurl" value="https://demo.pygeoapi.io/master/openapi" onchange="initAPI(this.value)" autocomplete="off" /> </label>
       <button onclick="initAPI()" id="go">Go</button>
     </p>
@@ -23,12 +36,13 @@
     <div id="examples">
       <h2>Examples</h2>
       <div class="NL">
-        <h3>OGC API Features</h3>
+        <h3>OGC API's and data</h3>
         <ul>
-          <li>PyGeoAPI demo current master <button onclick='setAPIurl("https://demo.pygeoapi.io/master/openapi")'>Load</button> <a href="https://demo.pygeoapi.io/master/openapi" target="_blank">View API doc</a></li>
+          <li>PyGeoAPI demo current master (API Features and API records) <button onclick='setAPIurl("https://demo.pygeoapi.io/master/openapi")'>Load</button> <a href="https://demo.pygeoapi.io/master/openapi" target="_blank">View API doc</a></li>
           <li>ldproxy NRW Topographie <button onclick='setAPIurl("https://www.ldproxy.nrw.de/topographie")'>Load</button> <a href="https://www.ldproxy.nrw.de/topographie" target="_blank">View API doc</a></li>
           <li>ldproxy demo Vineyards (GeoJSON | JSON-FG) <button onclick='setAPIurl("https://demo.ldproxy.net/vineyards")'>Load</button> <a href="https://demo.ldproxy.net/vineyards" target="_blank">View API doc</a></li>
           <li>GeoMet-OGC-API <button onclick='setAPIurl("https://api.weather.gc.ca/openapi")'>Load</button> <a href="https://api.weather.gc.ca/openapi" target="_blank">View API doc</a></li>
+          <li>Geonovum NL API Testbed demo pycsw <button onclick='setAPIurl("https://apitestbed.geonovum.nl/pycsw/csw.py/openapi")'>Load</button> <a href="https://apitestbed.geonovum.nl/pycsw/csw.py/openapi" target="_blank">View API doc</a></li>
           
           <!-- disabled ones:          
             <li>Geonovum testbed demo GeoServer (v2.19.1) (CORS not enabled)<button onclick='setAPIurl("https://apitestbed.geonovum.nl/geoserver/ogc/features/api")'>Load</button> <a href="http://inspirelab.geonovum.nl/test/wfs3/api" target="_blank">View API doc</a></li>          
@@ -52,19 +66,40 @@
         </ul>
       </div>
     </div>
-    <div id="collections">Load an OpenAPI document first. Use the examples from the left, or input another one above.
-    </div>
   </div>
   <div>
+    <h2 id="results">Results</h2>
     <button onclick="clearMap()" id="go">Clear map</button>
   </div>
   <div id="map" class="map"></div>
-  <h2>Request log</h2>
-  <div id="log" class="log"></div>
+  <div id="searchWrapper">
+    <div id="collections">Load an OpenAPI document first. Use the examples from the left, or input another one above.
+    </div>
+    <div id="searchScreen">
+      <button class="close" onclick="$('#searchScreen').hide();$('#collections').show();" title="close">x</button>
+      <h3>Search in records</h3>
+      <!-- Notes:
+        Queryables are not read yet, could use for example: https://demo.pygeoapi.io/master/collections/dutch-metadata/queryables?f=json 
+      -->
+      <p>
+        Free text search: <input type="text" id="searchTerm"/> <button id="searchRecordsAPI" onclick="searchRecordsAPI()">Search</button>
+      </p>
+      <h3>Results:</h3>
+      <ol id="searchResults">       
+      </ol>
+      <div id="searchResultsCounter"></div>
+      <div id="browseButtons"></div>
+    </div>
+  </div>
 
+  <h2 id="logHeader">Request log</h2>
+  <div id="log" class="log"></div>
+  
   <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
   crossorigin=""></script>
+
+  <script src="//unpkg.com/leaflet-gesture-handling"></script>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 

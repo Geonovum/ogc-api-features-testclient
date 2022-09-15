@@ -1,9 +1,14 @@
+/*
+  demo code, illustrating how access OGC Features API and OGC Records API could be done
+  code is setup simple, for demo purposes
+*/
+
 let _apiDoc;
 let _apiCrses;
 let _baseurl = ""
 let _collectionsurl = apiurl + "/collections";
 let _collectionId = "";
-let _collections = []
+let _collections = {};
 // TODO: implement limit in requests, use the /api doc for this
 let _limit = 100;
 let map;
@@ -11,7 +16,9 @@ let bboxCrs;
 let _baseLayer = {};
 
 function initMap(crsAlias) {
-  let options = {};
+  let options = {
+    gestureHandling: true
+  };
   // just to init the map proper
   if (crsAlias=='RD') {
     // a let set in proj4util.js
@@ -60,6 +67,8 @@ function logTxt(txt, level) {
 
 function setAPIurl(apiurl) {
   $("#apiurl").val(apiurl);
+  $('#searchScreen').hide();
+  $('#collections').show();
   initAPI(apiurl);
 }
 
@@ -87,9 +96,10 @@ function initAPI(apiurl) {
     
     // get the collections of the WFS 3 API
     $.getJSON(_collectionsurl, function(colldata) {
-      logUrl(_collectionsurl)
+      logUrl(_collectionsurl)      
       let cnt = 0;
       for (let c in colldata["collections"]) {
+        
         let coll = colldata["collections"][c];
         // id is required (not name as some implementations have)
         // to be relaxed: support both
@@ -99,16 +109,22 @@ function initAPI(apiurl) {
         if (coll["itemType"]) {
           itemType = coll["itemType"];
         }
-        
-        const li = "<p id='li_" + coll[idKey] + "'>" + "<span class='badge "+itemType+"'>" + itemType + "</span>" +
-          "<b>" + (coll["title"] || coll[idKey]) + "</b><br/>" + (coll["description"] || "") +
-          "<br/><button onclick='loadDataInExtent(\"" + coll[idKey] + "\", \""+ itemType + "\")'>Load items in current map view</button>&nbsp;<button onclick='addCollection(\"" + coll[idKey] + "\", \""+ itemType + "\")'>Browse items (random)</button></p>";
+        let collectionId = _collectionsurl + "/" + coll[idKey];
+        _collections[collectionId] = {"itemType": itemType, "internalid": coll[idKey]}
+        // create the html for the list item with buttons
+        let li = `<p id='li_${coll[idKey]}'><span class='badge ${itemType}'>${itemType}</span><b>${coll["title"] || coll[idKey]}</b><br/>${coll["description"] || ""}<br/><button onclick='loadDataInExtent(\"${coll[idKey]}\", \"${itemType}\")'>Load items in current map view</button>&nbsp;<button onclick='addCollection(\"${coll[idKey]}\", \"${itemType}\")'>Browse items (random)</button></p>`;
+        if (itemType == "record") {
+          // we have records, show a button to open search
+          li+=`<button onclick='$("#searchScreen").show();$("#collections").hide();_collectionId="${collectionId}";'>search</button>`;
+        }
         $("#collections").append(li);
         cnt++;
       }
       $("#go").prop("disabled", false);
       $("#collections").prepend("<h2>" + cnt + " collections found</h2>");
     });
+  }).fail( function() {
+    alert("Unfortunately, the url "+apiurl+" can't be accessed. Is it CORS enabled?");
   });
 }
 
@@ -140,7 +156,6 @@ function loadDataInExtent(collectionId, itemType) {
 }
 
 function nextData(reqUrl, collectionId, itemType) {
-  // TODO: remove previous data?
   loadData(reqUrl, collectionId, itemType);
 }
 
@@ -154,78 +169,139 @@ function addCollection(collectionId, itemType) {
 // explicitly add the itemType here, could be easier if the record itself says it is a record (featureType maybe?)
 function loadData(reqUrl, collectionId, itemType) {
   // http://localhost:5000/collections/pc5/items/?&limit=100
+  // callback for handling data?
   $.getJSON(reqUrl, function(data) {
     logUrl(reqUrl);
-    let newLayer = L.geoJSON(data, {
-      style: function(feature) {
-        // very basic styling..
-        return {
-          color: "#0000bb"
-        };
-      }
-    }).bindPopup(function(layer) {
-      // first determine the type of feature: regular or a specifc type, e.g. record
-      let featureTitle = collectionId;
-      // NOTE: a record has no indication it is a record, but we have to derive it from the properties
-      let propertiesHandled = [];
-      if (itemType == "record") {
-        // mandatory properties: 
-        featureTitle = layer.feature.properties["title"];
-        propertiesHandled.push("title");
+    if (data.features && itemType == "record") {
+      createSearchResults(data, collectionId, itemType);
+      $('#searchScreen').show();
+      $('#collections').hide();
+    } else {
+      showOnMap(data, collectionId, itemType);    
+    }
+    createPagingButtons(data, collectionId, itemType);    
+  });
+}
 
-      }
-      let pp = "<table class='fi'><th colspan='2'>" + featureTitle + "</td></th>";      
-      for (let p in layer.feature.properties) {
-        // in the array
-        if (!propertiesHandled.includes(p)) {
-          pp += "<tr><td>" + p + "</td><td> " + layer.feature.properties[p] + "</td></tr>";
-        }
-      }
-      for (let l in layer.feature.links) {
-        let link = layer.feature.links[l];
-        let title = "link";
-        if (link.title) {
-          title = link.title;
-        }        
-        let linkType = "link";
-        if (link.type) {
-          linkType = link.type;
-        }
-        linkTypeBadge = "<span class='badge'>" + linkType + "</span>";
-        pp += "<tr><td>" + linkTypeBadge + "</td><td><a href='"+ link.href +"' target='_blank'>"+ title +"</a></td></tr>"
-      }
-      pp += "</table>"
-      return pp;
-    }, {maxWidth: 500}).addTo(map);
+function showOnMap(data, collectionId, itemType) {
+  let newLayer = L.geoJSON(data, {
+    style: function(feature) {
+      // very basic styling..
+      return {
+        color: "#0000bb"
+      };
+    }
+  }).bindPopup(function(layer) {
+    return createPopupContents(layer, collectionId, itemType);
+  }, {maxWidth: 500}).addTo(map);
 
-    // add the next and prev URLs if provided in the geojson response
-    let liId = "li_" + collectionId
-    if ($("#" + liId)) {
+  // for RD: back to WGS 84
+  let newBnds = newLayer.getBounds();
+  // TODO: transform back for BGT?
+  if (bboxCrs) {
+    let ll = [newBnds["_southWest"].lng, newBnds["_southWest"].lat];
+    let ur = [newBnds["_northEast"].lng, newBnds["_northEast"].lat];
+    // transform to RD, only RD is supported now
+    ll = transformToWGS84(ll);
+    ur = transformToWGS84(ur);
+    newBnds = [ll, ur];
+  }
+  map.fitBounds(newBnds);
+  
+}
+
+function createSearchResults(data, collectionId, itemType) {
+    let list = [];
+    $("#searchResults").html("");
+    for (let i in data.features) {
+      const ft = data.features[i];
+      let title = ft.id;
+      // we probably have a record
+      if (ft.properties.title) {
+        title = ft.properties.title;
+      }
+      // TODO: add button to add to map
+      const addToMapButton = document.createElement("button");
+      addToMapButton.className = "showonmap"
+      addToMapButton.innerText = title;
+      // add a button to display a single feature on the map
+      $(addToMapButton).on("click", function() {          
+        showOnMap(ft, collectionId, itemType); 
+      })
+      const li = document.createElement("li");
+      li.append(addToMapButton);     
+      list.push(li);
+    }
+    $("#searchResults").append(list);
+    $("#searchResultsCounter").html(data.numberMatched + " records found, showing " + list.length);
+}
+
+function createPopupContents(layer, collectionId, itemType) {
+  // first determine the type of feature: regular or a specifc type, e.g. record
+  let featureTitle = collectionId;
+  // NOTE: a record has no indication it is a record, but we have to derive it from the properties
+  let propertiesHandled = [];
+  if (itemType == "record") {
+    // mandatory properties: 
+    featureTitle = layer.feature.properties["title"];
+    propertiesHandled.push("title");
+  }
+  let pp = `<table class='fi'><th colspan='2'>${featureTitle}</td></th>`;   
+  for (let l in layer.feature.links) {
+    let link = layer.feature.links[l];
+    let title = "link";
+    if (link.title) {
+      title = link.title;
+    }        
+    let linkType = "link";
+    if (link.type) {
+      linkType = link.type;
+    }
+    linkTypeBadge = `<span class='badge'>${linkType}</span>`;
+    pp += `<tr><td>${linkTypeBadge}</td><td><a href='${link.href}' target='_blank'>${title}</a></td></tr>`;
+  }
+  for (let p in layer.feature.properties) {
+    // in the array
+    if (!propertiesHandled.includes(p)) {
+      pp += "<tr><td>" + p + "</td><td> " + layer.feature.properties[p] + "</td></tr>";
+    }
+  }    
+  pp += "</table>";
+  return pp;
+}
+
+function createPagingButtons(data, collectionId, itemType) {
+   // add the next and prev URLs if provided in the geojson response
+    // TODO: add these buttons to the searchresults page too
+    let buttonContainerId = "li_" + collectionId;
+    if (itemType =="record") {
+      buttonContainerId = "browseButtons";
+    }
+    if ($("#" + buttonContainerId)) {
       for (let l in data.links) {
         let lnk = data.links[l];
         if (lnk.rel == "next" || lnk.rel == "prev") {
-          let btnId = "btn_" + lnk.rel + "_" + collectionId
+          let btnId = "btn_" + lnk.rel + "_" + collectionId + "_" +itemType;
           let ttl = (lnk.title) ? lnk.title : lnk.rel;
-          let btn = "<button id='" + btnId + "' onclick='nextData(\"" + lnk.href + "\", \"" + collectionId + "\",\"" + itemType + "\")'>" + ttl + "</button>";
+          let btn = `<button id='${btnId}' onclick='nextData(\"${lnk.href}\", \"${collectionId}\",\"${itemType}\")'>${ttl}</button>`;
           if ($("#" + btnId).length > 0) {
-            $("#" + btnId).replaceWith(btn)
+            $("#" + btnId).replaceWith(btn);
           } else {
-            $("#" + liId).append(btn)
+            $("#" + buttonContainerId).append(btn);
           }
         }
       }
     }
-    // for RD: back to WGS 84
-    let newBnds = newLayer.getBounds();
-    // TODO: transform back for BGT?
-    if (bboxCrs) {
-      let ll = [newBnds["_southWest"].lng, newBnds["_southWest"].lat];
-      let ur = [newBnds["_northEast"].lng, newBnds["_northEast"].lat];
-      // transform to RD, only RD is supported now
-      ll = transformToWGS84(ll);
-      ur = transformToWGS84(ur);
-      newBnds = [ll, ur];
-    }
-    map.fitBounds(newBnds);
-  });
+}
+
+function searchRecordsAPI() {
+  const q = $("#searchTerm").val();
+  // add dataset or service?
+  const collectionInfo = _collections[_collectionId];
+  $("#browseButtons").html("");
+  $("#searchResultsCounter").html("");
+  // create the query URL
+  // just add a higher limit
+  let reqUrl = _collectionId + "/items?limit="+_limit+"&q=" + q;
+  loadData(reqUrl, collectionInfo.internalid, collectionInfo.itemType);
 }
