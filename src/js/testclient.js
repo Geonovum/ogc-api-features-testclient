@@ -42,7 +42,7 @@ function initMap(crsAlias) {
   } else {
     options = {
       center: [52.1, 5.2],
-      zoom: 9,
+      zoom: 7,
     }
     _baseLayer = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -50,7 +50,7 @@ function initMap(crsAlias) {
   }
   // add gesture handling
   options.gestureHandling = true;
-  
+
   map = new L.map('map', options);
   _baseLayer.addTo(map);
   map.fitBounds(map.getBounds());
