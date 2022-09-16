@@ -1,5 +1,5 @@
 # Test client for OGC API Features and API Records
-Basic test client for OGC API Features and API Records, based on [Leaflet JS](https://leafletjs.com/) and [jQuery](https://jquery.com/). Just to show how to access an OGC API Features / Records implementation, to see if it provides data.
+Basic test client for OGC API Features and API Records, built with [Leaflet JS](https://leafletjs.com/) and [jQuery](https://jquery.com/). Just to show how to access an OGC API Features / Records implementation, to see if it provides data.
 
 In a logging screen it shows the requests sent to the API, to understand what is happening.
 
@@ -17,3 +17,9 @@ This client is work in progress and meant for just a basic demo / test to access
 ### Limitations
 The live version on github.io has limitations:
 * only support APIs using https (secured connections): because of blocking mixed content in browsers, github.io is running on https, the API also must support https connections
+
+
+### External software
+This test client uses and is built on [LeafletJS](https://leafletjs.com/) with plugins for [gesture handling](https://github.com/elmarquis/Leaflet.GestureHandling/) and [Proj4Leaflet](https://kartena.github.io/Proj4Leaflet/), and [jQuery](https://jquery.com/).
+
+Many thanks to all the contributors of these projects.

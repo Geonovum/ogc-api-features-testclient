@@ -205,20 +205,35 @@ function clearMap() {
 }
 
 function showOnMap(data, collectionId, itemType) {
-  let newLayer = L.geoJSON(data, {
-    style: function (feature) {
-      // very basic styling..
-      return {
-        color: "#0000bb"
-      };
-    }
-  }).bindPopup(function (layer) {
+  let newLayer;
+  if (data.coordRefSys) {
+    console.log(data.coordRefSys);
+    // try to create another type of layer
+    newLayer = L.Proj.jsonFg(data, {
+      style: function (feature) {
+        // red is voor JSON-FG data that is to be projected
+        return {
+          color: "#bb0000"
+        };
+      }
+    });
+  } else {
+    newLayer = L.geoJSON(data, {
+      style: function (feature) {
+        // very basic styling..
+        return {
+          color: "#0000bb"
+        };
+      }
+    });
+  }
+  newLayer.bindPopup(function (layer) {
     return createPopupContents(layer, collectionId, itemType);
   }, { maxWidth: 500 }).addTo(map);
-
+  
   // for RD: back to WGS 84
   let newBnds = newLayer.getBounds();
-  // TODO: transform back for BGT?
+  // if the map has another bboxCrs
   if (bboxCrs) {
     let ll = [newBnds["_southWest"].lng, newBnds["_southWest"].lat];
     let ur = [newBnds["_northEast"].lng, newBnds["_northEast"].lat];
