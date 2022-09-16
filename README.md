@@ -14,10 +14,6 @@ This client is work in progress and meant for just a basic demo / test to access
 * support GeoJSON as encoding of data (features or records)
 * OpenAPI description of the service
 
-## Live version
-The live version from master (for this forked repo) is available at  [https://thijsbrentjens.github.io/ogc-api-features-testclient/src/](https://thijsbrentjens.github.io/ogc-api-features-testclient/src/)
-
-
 ### Limitations
 The live version on github.io has limitations:
 * only support APIs using https (secured connections): because of blocking mixed content in browsers, github.io is running on https, the API also must support https connections
