@@ -25,9 +25,18 @@
     <p> 
       The goal of this client is to demonstrate the usage of OGC API Features and API Records implementations and to test different implementations of these API specifications. 
       Enter an OpenAPI document URL to see what data is offered by the API or choose one from the list. 
-      The logging screen below the map shows which HTTP requests are sent.<br/>
-      <span class="warning">This client is very basic, meant for testing and demo only.</span>
+      The logging screen below the map shows which HTTP requests are sent.
     </p>    
+    <div class="warning">Some things to keep in mind:
+      <ul>
+        <li>an API should support Cross-origin resource sharing (CORS enabled), see for example <a href="https://enable-cors.org/" target="_blank">https://enable-cors.org/</a></li>
+        <li>an API should support <a href="https://github.com/opengeospatial/ogcapi-features" target="_blank">OGC API Features core</a> or <a href="https://github.com/opengeospatial/ogcapi-records/" target="_blank">OGC API Records DRAFT</a> including "free text search" using the <code>q</code> parameter
+        <li>an API should support GeoJSON as encoding of items (features or records)</li>
+        <li>an API should offer an OpenAPI description</li>        
+        <li>and finally: this client is very basic, meant for testing and demo only</li>
+      </ul>
+    </div>
+    
     <p><label for="apiurl">API doc URL: <input type="text" id="apiurl" value="https://demo.pygeoapi.io/master/openapi" onchange="initAPI(this.value)" autocomplete="off" /> </label>
       <button onclick="initAPI()" id="go">Go</button>
     </p>
@@ -57,7 +66,7 @@
         <h3>JSON-FG</h3>
         <ul>
           <li>ldproxy demo Montreal buildings (incl JSON-FG) <button onclick='setAPIurl("https://d123.ldproxy.net/montreal")'>Load</button> <a href="https://d123.ldproxy.net/montreal" target="_blank">View API doc</a></li>
-          <li>NL Buildings (CityJSON -&gt; GeoJSON/JSON-FG) as static file <button onclick='loadData("https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg", "3dbag")'>Load</button> <a href="https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg" target="_blank">Static file</a></li>
+          <li>NL Buildings (CityJSON -&gt; GeoJSON/JSON-FG) as static file <button onclick='loadItems("https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg", "3dbag")'>Load</button> <a href="https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg" target="_blank">Static file</a></li>
         </ul>
       </div>
       <div class="localhost">
