@@ -2,14 +2,79 @@ body {
   font-family: "proxima-nova", "museo", "Helvtica", Arial, sans-serif;
 }
 
-.map {
-  height: 400px;
-  width: 100%;
-  margin-bottom: 2em;
+div {
+  margin: 0;
+  padding: 0;
 }
 
+h1 {
+  padding-top: 1em;
+}
+
+.warning {
+  background-color: #ecbf6a;
+}
+
+#menu {
+  position: fixed;
+  width: 100%;
+  height: 1.5em;
+  background-color: #0b89dd;
+  color: white;
+  border-bottom: 1px solid #888888;
+  top: 0px;
+  left: 0px;
+  padding: 0.25em;
+  text-align: right;
+  z-index: 1200;
+}
+
+#menu a {
+  font-style: bold;
+  text-decoration: none;
+  color: #fff;
+}
+
+#menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#menu li {
+  display: inline;
+  padding: 2em;
+} 
+
+.map {
+  height: 400px;
+  width: 63%;
+  /* display: inline-block; */
+  display: inline-flex;
+}
+
+#searchWrapper {
+  display: inline-block;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 35%;
+  height: 400px;
+}
+
+#searchScreen {
+  display: none;
+  background-color: #fff;
+  /* border: 1px solid #888888; */
+  /* border-radius: 0.2em; */
+  padding: 0.2em;
+  z-index: 1000;
+  /* box-shadow: 1em 1em 2em rgba(127,127,127,0.6); */
+}
+
+
 .log {
-  height: 200px;
+  height: 400px;
   width: 100%;
   overflow-y: auto;
   border: 1px solid grey;
@@ -29,7 +94,7 @@ body {
   color: #888888;
 }
 
-#wfs3url {
+#apiurl {
   width: 50%;
 }
 
@@ -58,20 +123,43 @@ body {
   background-color: #f2f2f2;
 }
 
-#map,
-#apiinfo {
+
+.badge {
+  background-color: #888888;
+  border-radius: 0.3em;
+  color: #f2f2f2;
+  padding: 0.2em;
+  margin-right: 1em;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.badge.feature {
+  background-color: #18a305;
+}
+
+.badge.record {
+  background-color: #0b89dd;
+}
+
+
+#map, #apiinfo, #searchWrapper {
   border: 3px solid #f2f2f2;
-  margin-bottom: 1em;
+  /* margin-bottom: 1em;
+  padding-top: 2em; */
 }
 
 #apiinfo {
-  display: inline-flex;
+  display: block;
   width: 100%;
-  max-height: 250px;
+  height: 250px;
+  overflow-y: auto;
 }
 
 #examples {
   padding-right: 1em;
+  padding-left: 1em;
+  overflow-y: auto;
 }
 
 #examples button {
@@ -81,11 +169,27 @@ body {
 
 #collections {
   border-left: 1px solid #f2f2f2;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
 }
 
-#examples,
-#collections {
-  width: 50%;
-  padding-left: 1em;
+button.close {
+  position: relative;
+  /* ugly, but acceptable for now */
+  right: -90%;
+  top: 20px;
+}
+
+#searchResults {
+  height: 200px;
   overflow-y: auto;
+}
+
+/* display as if it is a link */
+button.showonmap {
+  background-color: transparent;
+  text-decoration: underline;
+  border: none;
+  cursor: pointer;
 }
