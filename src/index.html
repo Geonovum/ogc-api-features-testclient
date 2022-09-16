@@ -28,13 +28,12 @@
       The logging screen below the map shows which HTTP requests are sent.
     </p>
     <p>
-      It also adds some first, experimental support for JSON-FG encoded features in other CRSes, in this case the Dutch CRS EPSG:28992.
-    </p>
+      It also adds some first, experimental support for JSON-FG encoded features in other CRSes, in this case the Dutch CRS EPSG:28992. These are read, transformed and then displayed on the map.
     </p>
     <div class="warning">Some things to keep in mind:
       <ul>
         <li>an API should support Cross-origin resource sharing (CORS enabled), see for example <a href="https://enable-cors.org/" target="_blank">https://enable-cors.org/</a></li>
-        <li>an API should support <a href="https://github.com/opengeospatial/ogcapi-features" target="_blank">OGC API Features core</a> or <a href="https://github.com/opengeospatial/ogcapi-records/" target="_blank">OGC API Records DRAFT</a> including "free text search" using the <code>q</code> parameter
+        <li>an API should support <a href="https://github.com/opengeospatial/ogcapi-features" target="_blank">OGC API Features core</a> or <a href="https://github.com/opengeospatial/ogcapi-records/" target="_blank">OGC API Records DRAFT</a> including "free text search" using the <code>q</code> parameter</li>li>
         <li>an API should support GeoJSON as encoding of items (features or records)</li>
         <li>an API should offer an OpenAPI description</li>        
         <li>and finally: this client is very basic, meant for testing and demo only</li>
@@ -67,11 +66,11 @@
           
         </ul>
 
-        <h3>JSON-FG</h3>
+        <h3>JSON-FG: other CRSes</h3>
         <ul>
           <li>Sample NL data of trainstations in local CRS (RD,  EPSG:28992) <button onclick='loadItems("./data/nl-stations-epsg-28992.fg.json", "nl-stations-epsg-28992")'>Load</button> <a href="./data/nl-stations-epsg-28992.fg.json" target="_blank">Static file</a></li>
           <li>[3D, not visualized correctly] NL 3D Bag buildings JSON-FG, static file <button onclick='loadItems("https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg", "3dbag")'>Load</button> <a href="https://data.3dgi.xyz/jsonfg/3dbag/jsonfg/3dbag_v210908_fd2cee53_2413.jsonfg" target="_blank">Static file</a></li>
-          <li>ldproxy demo Montreal buildings (incl JSON-FG) <button onclick='setAPIurl("https://d123.ldproxy.net/montreal")'>Load</button> <a href="https://d123.ldproxy.net/montreal" target="_blank">View API doc</a></li>
+          <!-- 3D in Germany is not working:  <li>ldproxy demo Montreal buildings (incl JSON-FG) <button onclick='setAPIurl("https://d123.ldproxy.net/montreal")'>Load</button> <a href="https://d123.ldproxy.net/montreal" target="_blank">View API doc</a></li> -->
         </ul>
       </div>
       <div class="localhost">
